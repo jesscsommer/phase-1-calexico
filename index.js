@@ -1,8 +1,7 @@
-// TODO: when user clicks add cart, 'number to add' should be added to how many are currently in the cart (does not need to persist, but can as bonus #1)
-
 //! globals 
 
 const baseURL = 'http://localhost:3000/menu'
+const form = document.querySelector('#cart-form')
 
 //! fetch
 
@@ -19,6 +18,18 @@ const getMenu = (id) => {
 getMenu().then(menuItems => menuItems.forEach(itemObj => renderMenu(itemObj)))
 .catch(error => alert(error))
 
+const patchMenu = (id, body) => {
+    return fetch(`${baseURL}/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+        },
+        body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+}
+
 //! render on page 
 
 const renderMenu = (itemObj) => {
@@ -29,10 +40,12 @@ const renderMenu = (itemObj) => {
 }
 
 const displayMenuItem = (itemObj) => {
+    dish.name = itemObj.id
     document.querySelector('#dish-image').src = itemObj.image
     document.querySelector('#dish-name').innerText = itemObj.name
     document.querySelector('#dish-description').innerText = itemObj.description
     document.querySelector('#dish-price').innerText = itemObj.price
+    document.querySelector('#number-in-cart').innerText = itemObj['number_in_bag']
 }
 
 getMenu(1)
@@ -40,3 +53,13 @@ getMenu(1)
 .catch(error => alert(error))
 
 //! event listeners 
+
+form.addEventListener('submit', e => {
+    e.preventDefault();
+    const newNumberInBag = parseInt(document.querySelector('#number-in-cart').innerText) + parseInt(e.target['cart-amount'].value)
+    patchMenu(dish.name, {
+        number_in_bag: newNumberInBag
+    })
+    document.querySelector('#number-in-cart').innerText = newNumberInBag
+    e.target.reset()
+})
