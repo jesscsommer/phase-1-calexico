@@ -1,3 +1,6 @@
+//TODO calculate for what's currently in the cart & display on the page
+// you could display it as a div in the #dish section (try to append it after the h3)
+
 //! globals 
 
 const baseURL = 'http://localhost:3000/menu'
@@ -46,11 +49,27 @@ const displayMenuItem = (itemObj) => {
     document.querySelector('#dish-description').innerText = itemObj.description
     document.querySelector('#dish-price').innerText = itemObj.price
     document.querySelector('#number-in-cart').innerText = itemObj['number_in_bag']
+    displayCost(itemObj)
 }
 
 getMenu(1)
 .then(itemObj => displayMenuItem(itemObj))
 .catch(error => alert(error))
+
+const displayCost = (itemObj) => {
+    const costDiv = document.createElement('div')
+    costDiv.id = 'existing-cost'
+
+    const costH3 = document.createElement('h3')
+    costH3.id = 'totalPrice'
+    costH3.innerText = `Total Cost: $${itemObj['number_in_bag'] * itemObj.price}`
+
+    costDiv.append(costH3)
+    if (document.querySelector('#existing-cost')) {
+        document.querySelector('#existing-cost').remove()
+    }
+    document.querySelector('#number-in-cart').after(costDiv)
+}
 
 //! event listeners 
 
@@ -61,5 +80,6 @@ form.addEventListener('submit', e => {
         number_in_bag: newNumberInBag
     })
     document.querySelector('#number-in-cart').innerText = newNumberInBag
+    totalPrice.innerText = `Total Cost: $${newNumberInBag * parseInt(document.querySelector('#dish-price').innerText)}`
     e.target.reset()
 })
